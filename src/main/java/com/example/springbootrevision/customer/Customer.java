@@ -15,10 +15,10 @@ import lombok.Setter;
 public class Customer {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customer_sequence")
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customer_id_sequence")
   @SequenceGenerator(
-      name = "customer_sequence",
-      sequenceName = "customer_sequence",
+      name = "customer_id_sequence",
+      sequenceName = "customer_id_sequence",
       allocationSize = 1)
   private Long id;
 
@@ -27,4 +27,10 @@ public class Customer {
   private String email;
 
   private Integer age;
+
+  public Customer(String name, String email, Integer age) {
+    this.name = name;
+    this.email = email;
+    this.age = age;
+  }
 }
