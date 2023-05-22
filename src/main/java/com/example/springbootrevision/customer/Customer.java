@@ -22,10 +22,13 @@ public class Customer {
       allocationSize = 1)
   private Long id;
 
+  @Column(nullable = false)
   private String name;
 
+  @Column(nullable = false)
   private String email;
 
+  @Column(nullable = false)
   private Integer age;
 
   public Customer(String name, String email, Integer age) {
