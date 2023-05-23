@@ -5,33 +5,38 @@ import com.example.springbootrevision.customer.requests.CustomerRegistrationRequ
 import com.example.springbootrevision.customer.requests.CustomerUpdateRequest;
 import com.example.springbootrevision.exception.DuplicateResourceException;
 import com.example.springbootrevision.exception.ResourceNotFound;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-@RequiredArgsConstructor
 @Service
+@Transactional
 public class CustomerService {
 
-  private final CustomerRepository customerRepository;
+  private final CustomerDao customerDao;
+
+  public CustomerService(@Qualifier("jpa") CustomerDao customerDao) {
+    this.customerDao = customerDao;
+  }
 
   public List<Customer> getCustomers() {
-    return customerRepository.findAll();
+    return customerDao.selectAllCustomers();
   }
 
   public Customer getCustomer(Long customerId) {
-    return customerRepository.findById(customerId)
+    return customerDao.selectCustomerById(customerId)
         .orElseThrow(() -> new ResourceNotFound("Customer with id [%s] does not exist".formatted(customerId)));
   }
 
   public Long addNewCustomer(CustomerRegistrationRequest customerRegistrationRequest) {
-    if (customerRepository.existsByEmail(customerRegistrationRequest.email())) {
+    if (customerDao.existsByEmail(customerRegistrationRequest.email())) {
       throw new DuplicateResourceException("Email is already taken");
     }
 
-    var persistedCustomer = customerRepository.save(toCustomer(customerRegistrationRequest));
+    var persistedCustomer = customerDao.insertCustomer(toCustomer(customerRegistrationRequest));
 
     return persistedCustomer.getId();
   }
@@ -45,17 +50,17 @@ public class CustomerService {
   }
 
   public void deleteCustomer(Long customerId) {
-    if (!customerRepository.existsById(customerId)) {
+    if (!customerDao.existsById(customerId)) {
       throw new ResourceNotFound("Customer with id [%s] does not exist".formatted(customerId));
     }
-    customerRepository.deleteById(customerId);
+    customerDao.deleteCustomerById(customerId);
   }
 
   public Customer updateCustomer(Long customerId, CustomerUpdateRequest customerUpdateRequest) {
-    var customer = customerRepository.findById(customerId)
+    var customer = customerDao.selectCustomerById(customerId)
         .orElseThrow(() -> new ResourceNotFound("Customer with id [%s] does not exist".formatted(customerId)));
 
-    if (customerRepository.existsByEmail(customerUpdateRequest.email())) {
+    if (customerDao.existsByEmail(customerUpdateRequest.email())) {
       throw new DuplicateResourceException("Email is already taken");
     }
 
@@ -63,14 +68,14 @@ public class CustomerService {
     customer.setEmail(customerUpdateRequest.email());
     customer.setAge(customerUpdateRequest.age());
 
-    return customerRepository.save(customer);
+    return customerDao.insertCustomer(customer);
   }
 
   public Customer updateCustomerPartially(Long customerId, CustomerPatchRequest customerPatchRequest) {
-    var customer = customerRepository.findById(customerId)
+    var customer = customerDao.selectCustomerById(customerId)
         .orElseThrow(() -> new ResourceNotFound("Customer with id [%s] does not exist".formatted(customerId)));
 
-    if (customerPatchRequest.email() != null && customerRepository.existsByEmail(customerPatchRequest.email())) {
+    if (customerPatchRequest.email() != null && customerDao.existsByEmail(customerPatchRequest.email())) {
       throw new DuplicateResourceException("Email is already taken");
     }
 
@@ -78,6 +83,6 @@ public class CustomerService {
     customer.setEmail(Optional.ofNullable(customerPatchRequest.email()).orElse(customer.getEmail()));
     customer.setAge(Optional.ofNullable(customerPatchRequest.age()).orElse(customer.getAge()));
 
-    return customerRepository.save(customer);
+    return customerDao.updateCustomer(customer);
   }
 }
