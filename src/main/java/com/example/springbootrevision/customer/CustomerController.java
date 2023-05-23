@@ -1,5 +1,8 @@
 package com.example.springbootrevision.customer;
 
+import com.example.springbootrevision.customer.requests.CustomerPatchRequest;
+import com.example.springbootrevision.customer.requests.CustomerRegistrationRequest;
+import com.example.springbootrevision.customer.requests.CustomerUpdateRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

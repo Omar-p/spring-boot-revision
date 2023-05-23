@@ -1,5 +1,8 @@
 package com.example.springbootrevision.customer;
 
+import com.example.springbootrevision.customer.requests.CustomerPatchRequest;
+import com.example.springbootrevision.customer.requests.CustomerRegistrationRequest;
+import com.example.springbootrevision.customer.requests.CustomerUpdateRequest;
 import com.example.springbootrevision.exception.DuplicateResourceException;
 import com.example.springbootrevision.exception.ResourceNotFound;
 import lombok.RequiredArgsConstructor;
