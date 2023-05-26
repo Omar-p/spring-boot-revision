@@ -67,6 +67,6 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Container image
-        run:  mvn compile com.google.cloud.tools:jib-maven-plugin:3.1.1:build -Djib.to.image=${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        run:  mvn compile jib:build -Djib.to.image=${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
 
