@@ -8,6 +8,6 @@ import jakarta.validation.constraints.Positive;
 public record CustomerRegistrationRequest(
     @NotNull @NotBlank String name,
     @NotNull @NotBlank @Email String email,
-    @NotNull @NotBlank @Positive Integer age
+    @NotNull @Positive Integer age
 ) {
 }
