@@ -5,6 +5,9 @@ on:
     branches: [ master ]
     paths:
       - 'backend/**'
+env:
+  DOCKER_REGISTRY_USERNAME: 'omar077'
+  IMAGE_NAME: 'customers-api'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,6 +35,12 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
+      - name: Cache the Maven packages to speed up build
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
       - name: Build and run Unit/Integration test with Maven
         run: mvn -ntp -B clean verify
@@ -50,8 +59,7 @@ jobs:
           java-version: '17'
           cache: 'maven'
       - name: Build Container image
-        run: mvn -DskipTests=true clean package spring-boot:build-image \
-              -Dspring-boot.build-image.imageName=${{ env.REGISTRY_USERNAME }}/customers-api:${{ github.sha }}
+        run: mvn -DskipTests=true clean package spring-boot:build-image -Dspring-boot.build-image.imageName=${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -60,5 +68,5 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Publish Docker image
-        run: docker push ${{ env.REGISTRY_USERNAME }}/$IMAGE_NAME:${{ github.sha }}
+        run: docker push ${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
