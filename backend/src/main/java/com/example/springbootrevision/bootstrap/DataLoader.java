@@ -20,16 +20,19 @@ public class DataLoader {
     return args -> {
       var faker = new Faker();
       Random random = new Random();
-      Name name = faker.name();
-      String firstName = name.firstName();
-      String lastName = name.lastName();
-      int age = random.nextInt(16, 99);
-      String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@amigoscode.com";
-      Customer customer = new Customer(
-          firstName +  " " + lastName,
-          email,
-          age);
-      customerRepository.save(customer);
+      for (int i = 0; i < 100; i++) {
+        Name name = faker.name();
+        String firstName = name.firstName();
+        String lastName = name.lastName();
+        int age = random.nextInt(16, 99);
+        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + random.nextInt() + "@gmail.com";
+        Customer customer = new Customer(
+            firstName + " " + lastName,
+            email,
+            age
+        );
+        customerRepository.save(customer);
+      }
 
     };
   }
