@@ -1,4 +1,14 @@
 services:
+  backend:
+    image: omar077/customers-api:cb35b47065bd0226a54860a02dbccc4a079afa88
+    ports:
+      - "80:8080"
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/customer
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
   postgres:
     image: postgres:15-alpine
     ports:

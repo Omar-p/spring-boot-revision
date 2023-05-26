@@ -1,0 +1,72 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "containerDefinitions": [
+    {
+      "environment": [
+        {
+          "name": "SPRING_DATASOURCE_URL",
+          "value": "jdbc:postgresql://postgres:5432/customer"
+        },
+        {
+          "name": "SPRING_DATASOURCE_USERNAME",
+          "value": "postgres"
+        },
+        {
+          "name": "SPRING_DATASOURCE_PASSWORD",
+          "value": "postgres"
+        }
+      ],
+      "essential": true,
+      "memory": 512,
+      "image": "omar077/customers-api:cb35b47065bd0226a54860a02dbccc4a079afa88",
+      "name": "backend",
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 80
+        }
+      ]
+    },
+    {
+      "environment": [
+        {
+          "name": "POSTGRES_USER",
+          "value": "postgres"
+        },
+        {
+          "name": "POSTGRES_PASSWORD",
+          "value": "postgres"
+        },
+        {
+          "name": "POSTGRES_DB",
+          "value": "customer"
+        }
+      ],
+      "essential": true,
+      "image": "postgres:15-alpine",
+      "mountPoints": [
+        {
+          "containerPath": "/var/lib/postgresql/data",
+          "sourceVolume": "Customer-Db"
+        }
+      ],
+      "name": "postgres",
+      "memory": 512,
+      "portMappings": [
+        {
+          "containerPort": 5432,
+          "hostPort": 5432
+        }
+      ]
+    }
+  ],
+  "family": "",
+  "volumes": [
+    {
+      "host": {
+        "sourcePath": "customer-db"
+      },
+      "name": "Customer-Db"
+    }
+  ]
+}
