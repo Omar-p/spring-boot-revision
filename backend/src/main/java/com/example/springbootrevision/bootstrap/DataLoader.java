@@ -20,7 +20,7 @@ public class DataLoader {
     return args -> {
       var faker = new Faker();
       Random random = new Random();
-      for (int i = 0; i < 100; i++) {
+      for (int i = 0; i < 250; i++) {
         Name name = faker.name();
         String firstName = name.firstName();
         String lastName = name.lastName();
