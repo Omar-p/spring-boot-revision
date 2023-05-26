@@ -1,11 +1,6 @@
 name: CI - Build Backend
 
-
 on:
-  push:
-    branches: [ master ]
-    paths:
-      - 'backend/**'
   pull_request:
     branches: [ master ]
     paths:
@@ -43,6 +38,9 @@ jobs:
 
   push-docker-image:
     needs: build
+    defaults:
+      run:
+        working-directory: backend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
