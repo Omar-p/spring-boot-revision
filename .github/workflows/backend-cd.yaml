@@ -39,9 +39,11 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build and run Unit/Integration test with Maven
+        working-directory: backend
         run: mvn -ntp -B clean verify
 
       - name: Build Docker image using jib plugin
+        working-directory: backend
         run: mvn -ntp -B jib:build -Dimage=omar077/customers-api:${{ github.sha }}
 
 
