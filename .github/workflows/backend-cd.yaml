@@ -26,6 +26,14 @@ jobs:
               --health-timeout 5s
               --health-retries 5
     steps:
+      - name: Send Slack Message
+        run: >
+          curl -X POST -H 'Content-type: application/json' 
+          --data '
+            {"text":"Deployment started :progress_bar: :spring:"}
+          ' 
+          ${{ secrets.SLACK_WEBHOOK_URL }}
+
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
         with:
@@ -50,10 +58,26 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Send Slack Message
+        run: >
+          curl -X POST -H 'Content-type: application/json' 
+          --data '
+            {"text":"Build Image using jib plugin :maven:"}
+          ' 
+          ${{ secrets.SLACK_WEBHOOK_URL }}
+
       - name: Build Docker image using jib plugin
         working-directory: backend
         run: mvn -ntp -B jib:build -Dimage=omar077/customers-api:${{ github.sha }}
 
+
+      - name: Send Slack Message
+        run: >
+          curl -X POST -H 'Content-type: application/json' 
+          --data '
+            {"text":"Image tag :docker: omar077/customers-api:${{ github.sha }}"}
+          ' 
+          ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: update image id
         run: |
@@ -61,8 +85,15 @@ jobs:
           sed -i -E 's_(omar077/customers-api:)([^"]*)_\1'"${{ github.sha }}"'_' backend/Dockerrun.aws.json
           sed -i -E 's_(omar077/customers-api:)([^"]*)_\1'"${{ github.sha }}"'_' docker-compose.yaml
           cat backend/Dockerrun.aws.json
+          
 
-      
+      - name: Send Slack Message
+        run: >
+          curl -X POST -H 'Content-type: application/json' 
+          --data '
+            {"text":" :aws: Starting deployment to Elastic Beanstalk"}
+          ' 
+          ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v21
@@ -81,3 +112,20 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: master
           message: "[skip actions]: update image id"
+
+      - name: Send Slack Message
+        run: >
+          curl -X POST -H 'Content-type: application/json' 
+          --data '
+            {"text":" Deployment and Commit completed :github_check_mark: :party_blob: - ${{ secrets.EB_URL }}"}
+          ' 
+          ${{ secrets.SLACK_WEBHOOK_URL }} 
+
+      - name:
+        if: always()
+        run: >
+          curl -X POST -H 'Content-type: application/json' 
+          --data '
+            {"text":"Job Status ${{ job.status }}"}
+          ' 
+          ${{ secrets.SLACK_WEBHOOK_URL }}
