@@ -1,6 +1,7 @@
+version: '3.8'
 services:
   backend:
-    image: omar077/customers-api:cb35b47065bd0226a54860a02dbccc4a079afa88
+    image: omar077/customers-api:ab6be983ca4fef9c22e34d07c20950e9df869ae2
     ports:
       - "80:8080"
     depends_on:
@@ -9,6 +10,11 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/customer
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    restart: always
   postgres:
     image: postgres:15-alpine
     ports:
@@ -19,5 +25,10 @@ services:
       - POSTGRES_DB=customer
     volumes:
       - customer-db:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    restart: always
 volumes:
   customer-db:

@@ -17,9 +17,12 @@
         }
       ],
       "essential": true,
-      "memory": 512,
-      "image": "omar077/customers-api:cb35b47065bd0226a54860a02dbccc4a079afa88",
+      "image": "omar077/customers-api:ab6be983ca4fef9c22e34d07c20950e9df869ae2",
       "name": "backend",
+      "memory": 512,
+      "links": [
+        "postgres"
+      ],
       "portMappings": [
         {
           "containerPort": 8080,
@@ -43,6 +46,7 @@
         }
       ],
       "essential": true,
+      "memory": 256,
       "image": "postgres:15-alpine",
       "mountPoints": [
         {
@@ -51,7 +55,6 @@
         }
       ],
       "name": "postgres",
-      "memory": 512,
       "portMappings": [
         {
           "containerPort": 5432,
@@ -60,7 +63,7 @@
       ]
     }
   ],
-  "family": "",
+  "family": "spring-app",
   "volumes": [
     {
       "host": {
