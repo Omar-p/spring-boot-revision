@@ -1,3 +1,7 @@
+cors:
+  allowed-origins: "*"
+  allowed-methods: "*"
+
 server:
   error:
     include-message: always
