@@ -34,10 +34,9 @@ jobs:
           cache: 'maven'
       - name: Cache the Maven packages to speed up build
         uses: actions/cache@v3
-        working-directory: backend
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/backend/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build and run Unit/Integration test with Maven
