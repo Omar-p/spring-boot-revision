@@ -75,10 +75,7 @@ jobs:
           region: ${{ secrets.AWS_REGION }}
           deployment_package: backend/Dockerrun.aws.json
 
-      - name: commit changes
-        run: |
-          git config --global user.name github-actions
-          git config --global user.email github-actions@github.com
-          git add .
-          git commit -m "update image tag in Dockerrun.aws.json and docker-compose.yaml"
-          git push
+      - name: Commit & Push changes
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
