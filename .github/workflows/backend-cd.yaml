@@ -57,8 +57,10 @@ jobs:
 
       - name: update image id
         run: |
+          cat backend/Dockerrun.aws.json
           sed -i -E 's_(omar077/customers-api:).*$_\1'"${{ github.sha }}"'_' docker-compose.yaml
           sed -i -E 's_(omar077/customers-api:).*$_\1'"${{ github.sha }}"'_' backend/Dockerrun.aws.json
+          cat backend/Dockerrun.aws.json
 
       
 
