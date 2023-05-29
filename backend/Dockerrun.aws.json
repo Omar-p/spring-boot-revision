@@ -17,7 +17,7 @@
         }
       ],
       "essential": true,
-      "image": "omar077/customers-api:32621ba73b7f32beb5d885458c491d48dccee29f",
+      "image": "omar077/customers-api:42e174484abe93d2c25bc4d59c6cb638d8a1260f",
       "name": "backend",
       "memory": 512,
       "links": [
