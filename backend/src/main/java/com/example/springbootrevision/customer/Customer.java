@@ -1,5 +1,6 @@
 package com.example.springbootrevision.customer;
 
+import com.example.springbootrevision.security.UserDetailsApp;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +31,16 @@ public class Customer {
 
   @Column(nullable = false)
   private Integer age;
+
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(
+      name = "user_details_app_id",
+      referencedColumnName = "id",
+      foreignKey = @ForeignKey(
+          name = "user_details_app_id_fk"
+      )
+  )
+  private UserDetailsApp userDetailsApp;
 
   public Customer(Long id, String name, String email, Integer age) {
     this.id = id;

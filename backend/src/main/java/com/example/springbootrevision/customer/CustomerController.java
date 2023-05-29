@@ -3,8 +3,10 @@ package com.example.springbootrevision.customer;
 import com.example.springbootrevision.customer.requests.CustomerPatchRequest;
 import com.example.springbootrevision.customer.requests.CustomerRegistrationRequest;
 import com.example.springbootrevision.customer.requests.CustomerUpdateRequest;
+import com.example.springbootrevision.jwt.JWTUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ public class CustomerController {
 
 
   private final CustomerService customerService;
+  private final JWTUtil jwtUtil;
 
   @GetMapping("api/v1/customers")
   public List<Customer> getCustomers() {
@@ -33,7 +36,14 @@ public class CustomerController {
   @PostMapping("api/v1/customers")
   public ResponseEntity<?> registerNewCustomer(@Valid @RequestBody CustomerRegistrationRequest customerRegistrationRequest) {
     final Long id = customerService.addNewCustomer(customerRegistrationRequest);
-    return ResponseEntity.created(URI.create("/api/customers/" +id)).build();
+    return ResponseEntity
+        .created(URI.create("/api/customers/" +id))
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + issueTokeWithRoleUser(customerRegistrationRequest))
+        .build();
+  }
+
+  private String issueTokeWithRoleUser(CustomerRegistrationRequest customerRegistrationRequest) {
+    return jwtUtil.issueToken(customerRegistrationRequest.email(), "ROLE_USER");
   }
 
   @DeleteMapping("api/v1/customers/{customerId}")

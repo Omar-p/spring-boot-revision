@@ -1,5 +1,6 @@
 package com.example.springbootrevision.customer;
 
+import com.example.springbootrevision.security.UserDetailsApp;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -55,16 +56,34 @@ public class CustomerJdbcDataAccessService implements CustomerDao {
   @Override
   public Customer insertCustomer(Customer customer) {
 
+    var insertUserDetails = """
+       
+        INSERT INTO user_details_app(email, password, locked) VALUES (?, ?, ?)
+""";
+
+
+
     var sql =
         """
-        INSERT INTO customer(name, email, age)
-        VALUES (?, ?, ?)
+        INSERT INTO customer(name, email, age, user_details_app_id)
+        VALUES (?, ?, ?, ?)
         """;
+
+    jdbcTemplate.update(
+        insertUserDetails,
+        customer.getEmail(),
+        "password",
+        false
+    );
+
+    long userDetailsId = selectUserDetailsByEmail(customer.getEmail()).getId();
+
     jdbcTemplate.update(
         sql,
         customer.getName(),
         customer.getEmail(),
-        customer.getAge()
+        customer.getAge(),
+        userDetailsId
     );
 
     return getByEmail(customer.getEmail());
@@ -144,6 +163,11 @@ public class CustomerJdbcDataAccessService implements CustomerDao {
 
   }
 
+  @Override
+  public Optional<Customer> selectCustomerByEmail(String email) {
+    return Optional.ofNullable(getByEmail(email));
+  }
+
   private Customer getByEmail(String email) {
     final String sql =
         """
@@ -162,13 +186,46 @@ public class CustomerJdbcDataAccessService implements CustomerDao {
     );
   }
 
-  private static RowMapper<Customer> customerRowMapper() {
+  private UserDetailsApp selectUserDetailsByEmail(String email) {
+    final String sql =
+        """
+        SELECT id,
+               email,
+               password,
+               locked
+        FROM user_details_app
+        WHERE email = ?
+        """;
+
+    return jdbcTemplate.queryForObject(
+        sql,
+        userDetailsRowMapper(),
+        email
+    );
+  }
+
+  private static RowMapper<UserDetailsApp> userDetailsRowMapper() {
+    return (resultSet, i) -> {
+      var id = resultSet.getLong("id");
+      var email = resultSet.getString("email");
+      var password = resultSet.getString("password");
+      var locked = resultSet.getBoolean("locked");
+      return new UserDetailsApp(id, email, password, locked);
+    };
+  }
+
+  private RowMapper<Customer> customerRowMapper() {
     return (resultSet, i) -> {
       var id = resultSet.getLong("id");
       var name = resultSet.getString("name");
       var email = resultSet.getString("email");
       var age = resultSet.getInt("age");
-      return new Customer(id, name, email, age);
+
+      final Customer customer = new Customer(id, name, email, age);
+
+      customer.setUserDetailsApp(selectUserDetailsByEmail(email));
+
+      return customer;
     };
   }
 }

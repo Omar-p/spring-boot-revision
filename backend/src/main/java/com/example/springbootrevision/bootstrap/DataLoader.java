@@ -15,7 +15,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class DataLoader {
 
-  @Bean
+//  @Bean
   CommandLineRunner commandLineRunner(CustomerRepository customerRepository) {
     return args -> {
       var faker = new Faker();

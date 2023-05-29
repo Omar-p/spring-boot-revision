@@ -5,7 +5,9 @@ import com.example.springbootrevision.customer.requests.CustomerRegistrationRequ
 import com.example.springbootrevision.customer.requests.CustomerUpdateRequest;
 import com.example.springbootrevision.exception.DuplicateResourceException;
 import com.example.springbootrevision.exception.ResourceNotFound;
+import com.example.springbootrevision.security.UserDetailsApp;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,12 +19,14 @@ import java.util.Optional;
 public class CustomerService {
 
   private final CustomerDao customerDao;
+  private final PasswordEncoder passwordEncoder;
 
   private static final String CUSTOMER_NOT_FOUND = "Customer with id [%s] does not exist";
   private static final String EMAIL_IS_ALREADY_EXISTS = "Email is already taken";
 
-  public CustomerService(@Qualifier("jpa") CustomerDao customerDao) {
+  public CustomerService(@Qualifier("jpa") CustomerDao customerDao, PasswordEncoder passwordEncoder) {
     this.customerDao = customerDao;
+    this.passwordEncoder = passwordEncoder;
   }
 
   public List<Customer> getCustomers() {
@@ -39,7 +43,15 @@ public class CustomerService {
       throw new DuplicateResourceException(EMAIL_IS_ALREADY_EXISTS);
     }
 
-    var persistedCustomer = customerDao.insertCustomer(toCustomer(customerRegistrationRequest));
+    UserDetailsApp userDetailsApp = new UserDetailsApp(
+        customerRegistrationRequest.email(),
+        passwordEncoder.encode(customerRegistrationRequest.password()),
+        false
+    );
+    final Customer customer = toCustomer(customerRegistrationRequest);
+    customer.setUserDetailsApp(userDetailsApp);
+
+    var persistedCustomer = customerDao.insertCustomer(customer);
 
     return persistedCustomer.getId();
   }
