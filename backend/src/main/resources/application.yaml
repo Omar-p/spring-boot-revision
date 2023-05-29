@@ -2,9 +2,16 @@ cors:
   allowed-origins: "*"
   allowed-methods: "*"
 
+logging:
+  level:
+    org:
+      springframework:
+        security: TRACE
 server:
   error:
     include-message: always
+
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/customer
