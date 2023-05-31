@@ -2,7 +2,7 @@ create sequence user_details_app_id_sequence start with 1 increment by 1;
 
 
 create table user_details_app (
-      locked boolean not null,
+      enabled boolean not null,
       id bigint not null DEFAULT nextval('user_details_app_id_sequence'),
       email varchar(255) not null,
       password varchar(255) not null,

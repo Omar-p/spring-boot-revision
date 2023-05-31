@@ -34,9 +34,13 @@ class CustomerJdbcDataAccessServiceTest extends AbstractPGTestcontainer {
   @BeforeEach
   void setUp() {
     jdbcTemplate.update(
+        "INSERT INTO user_details_app(email, password, enabled) VALUES ('email@email.com', 'password', true)"
+    );
+
+    jdbcTemplate.update(
     """
-    INSERT INTO customer(name, email, age)
-    VALUES ('John', 'email@email.com', 20)
+    INSERT INTO customer(name, email, age, user_details_app_id)
+    VALUES ('John', 'email@email.com', 20, currval('user_details_app_id_sequence'))
     """);
 
   }
@@ -68,9 +72,13 @@ class CustomerJdbcDataAccessServiceTest extends AbstractPGTestcontainer {
     BDDAssertions.assertThat(customer.isPresent())
         .isTrue();
 
+
+    var expected = new Customer(id, "John", "email@email.com", 20);
+
     BDDAssertions.assertThat(customer.get())
         .usingRecursiveComparison()
-        .isEqualTo(new Customer(id, "John", "email@email.com", 20));
+        .ignoringFields("userDetailsApp")
+        .isEqualTo(expected);
 
   }
 

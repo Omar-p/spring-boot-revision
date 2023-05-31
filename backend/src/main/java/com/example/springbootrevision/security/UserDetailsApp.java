@@ -42,19 +42,19 @@ public class UserDetailsApp implements UserDetails {
   @Column(nullable = false)
   private String password;
 
-  private boolean locked;
+  private boolean enabled;
 
   public UserDetailsApp(Long id, String email, String password, boolean locked) {
     this.id = id;
     this.email = email;
     this.password = password;
-    this.locked = locked;
+    this.enabled = locked;
   }
 
   public UserDetailsApp(String email, String password, boolean locked) {
     this.email = email;
     this.password = password;
-    this.locked = locked;
+    this.enabled = locked;
   }
 
   @Override
@@ -74,21 +74,21 @@ public class UserDetailsApp implements UserDetails {
 
   @Override
   public boolean isAccountNonExpired() {
-    return locked;
+    return enabled;
   }
 
   @Override
   public boolean isAccountNonLocked() {
-    return locked;
+    return enabled;
   }
 
   @Override
   public boolean isCredentialsNonExpired() {
-    return locked;
+    return enabled;
   }
 
   @Override
   public boolean isEnabled() {
-    return locked;
+    return enabled;
   }
 }

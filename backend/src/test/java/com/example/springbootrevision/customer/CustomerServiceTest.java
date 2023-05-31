@@ -3,6 +3,7 @@ package com.example.springbootrevision.customer;
 import com.example.springbootrevision.customer.requests.CustomerRegistrationRequest;
 import com.example.springbootrevision.customer.requests.CustomerUpdateRequest;
 import com.example.springbootrevision.exception.ResourceNotFound;
+import com.example.springbootrevision.security.UserDetailsApp;
 import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -21,6 +23,9 @@ class CustomerServiceTest {
 
   @Mock
   CustomerDao customerDao;
+
+  @Mock
+  PasswordEncoder passwordEncoder;
 
   @InjectMocks
   private CustomerService underTest;
@@ -37,8 +42,15 @@ class CustomerServiceTest {
   @Test
   void givenExisitingIdItShouldGetCustomer() {
     // Given
+    final Customer customer = new Customer(1L, "James", "Bond@email.com", 22);
+    customer.setUserDetailsApp(new UserDetailsApp(
+        "James",
+        "password",
+        true
+    ));
     BDDMockito.given(customerDao.selectCustomerById(1L))
-        .willReturn(Optional.of(new Customer(1L, "James", "Bond@email.com", 22)));
+        .willReturn(Optional.of(customer));
+
 
     // When
 
@@ -73,7 +85,8 @@ class CustomerServiceTest {
     CustomerRegistrationRequest request = new CustomerRegistrationRequest(
         "James",
         "Bond@email.com",
-        22
+        22,
+        "password"
     );
 
     ArgumentCaptor<String> emailArgumentCaptor = ArgumentCaptor.forClass(String.class);
@@ -100,6 +113,7 @@ class CustomerServiceTest {
     BDDAssertions.assertThat(customerArgumentCaptor.getValue())
         .usingRecursiveComparison()
         .ignoringFields("id")
+        .ignoringFields("userDetailsApp")
         .isEqualTo(retCustomer);
 
     BDDAssertions.assertThat(c)
@@ -145,13 +159,23 @@ class CustomerServiceTest {
         22
     );
 
+    final Customer customer = new Customer(
+        id,
+        "Jamess",
+        "bond@email.com",
+        22
+    );
+    customer.setUserDetailsApp(new UserDetailsApp(
+        "newbond@email.com",
+        "password",
+        true
+    ));
+
     BDDMockito.given(customerDao.selectCustomerById(id))
-        .willReturn(Optional.of(new Customer(
-            id,
-            "Jamess",
-            "bond@email.com",
-            22
-        )));
+        .willReturn(Optional.of(customer));
+
+    BDDMockito.given(customerDao.updateCustomer(customer))
+        .willReturn(customer);
 
     BDDMockito.given(customerDao.existsByEmail(cur.email()))
         .willReturn(false);

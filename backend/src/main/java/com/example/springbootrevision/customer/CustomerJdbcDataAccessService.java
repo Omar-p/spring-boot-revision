@@ -58,7 +58,7 @@ public class CustomerJdbcDataAccessService implements CustomerDao {
 
     var insertUserDetails = """
        
-        INSERT INTO user_details_app(email, password, locked) VALUES (?, ?, ?)
+        INSERT INTO user_details_app(email, password, enabled) VALUES (?, ?, ?)
 """;
 
 
@@ -73,7 +73,7 @@ public class CustomerJdbcDataAccessService implements CustomerDao {
         insertUserDetails,
         customer.getEmail(),
         "password",
-        false
+        true
     );
 
     long userDetailsId = selectUserDetailsByEmail(customer.getEmail()).getId();
@@ -192,7 +192,7 @@ public class CustomerJdbcDataAccessService implements CustomerDao {
         SELECT id,
                email,
                password,
-               locked
+               enabled
         FROM user_details_app
         WHERE email = ?
         """;
@@ -209,8 +209,8 @@ public class CustomerJdbcDataAccessService implements CustomerDao {
       var id = resultSet.getLong("id");
       var email = resultSet.getString("email");
       var password = resultSet.getString("password");
-      var locked = resultSet.getBoolean("locked");
-      return new UserDetailsApp(id, email, password, locked);
+      var enabled = resultSet.getBoolean("enabled");
+      return new UserDetailsApp(id, email, password, enabled);
     };
   }
 

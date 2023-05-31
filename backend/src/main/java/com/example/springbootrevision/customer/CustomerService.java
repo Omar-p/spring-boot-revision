@@ -7,12 +7,14 @@ import com.example.springbootrevision.exception.DuplicateResourceException;
 import com.example.springbootrevision.exception.ResourceNotFound;
 import com.example.springbootrevision.security.UserDetailsApp;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -33,8 +35,9 @@ public class CustomerService {
     return customerDao.selectAllCustomers();
   }
 
-  public Customer getCustomer(Long customerId) {
+  public CustomerDTO getCustomer(Long customerId) {
     return customerDao.selectCustomerById(customerId)
+        .map(this::toCustomerDTO)
         .orElseThrow(() -> new ResourceNotFound(CUSTOMER_NOT_FOUND.formatted(customerId)));
   }
 
@@ -46,7 +49,7 @@ public class CustomerService {
     UserDetailsApp userDetailsApp = new UserDetailsApp(
         customerRegistrationRequest.email(),
         passwordEncoder.encode(customerRegistrationRequest.password()),
-        false
+        true
     );
     final Customer customer = toCustomer(customerRegistrationRequest);
     customer.setUserDetailsApp(userDetailsApp);
@@ -71,7 +74,7 @@ public class CustomerService {
     customerDao.deleteCustomerById(customerId);
   }
 
-  public Customer updateCustomer(Long customerId, CustomerUpdateRequest customerUpdateRequest) {
+  public CustomerDTO updateCustomer(Long customerId, CustomerUpdateRequest customerUpdateRequest) {
     var customer = customerDao.selectCustomerById(customerId)
         .orElseThrow(() -> new ResourceNotFound(CUSTOMER_NOT_FOUND.formatted(customerId)));
 
@@ -81,12 +84,13 @@ public class CustomerService {
 
     customer.setName(customerUpdateRequest.name());
     customer.setEmail(customerUpdateRequest.email());
+    customer.getUserDetailsApp().setEmail(customerUpdateRequest.email());
     customer.setAge(customerUpdateRequest.age());
 
-    return customerDao.updateCustomer(customer);
+    return toCustomerDTO(customerDao.updateCustomer(customer));
   }
 
-  public Customer updateCustomerPartially(Long customerId, CustomerPatchRequest customerPatchRequest) {
+  public CustomerDTO updateCustomerPartially(Long customerId, CustomerPatchRequest customerPatchRequest) {
     var customer = customerDao.selectCustomerById(customerId)
         .orElseThrow(() -> new ResourceNotFound(CUSTOMER_NOT_FOUND.formatted(customerId)));
 
@@ -98,6 +102,27 @@ public class CustomerService {
     customer.setEmail(Optional.ofNullable(customerPatchRequest.email()).orElse(customer.getEmail()));
     customer.setAge(Optional.ofNullable(customerPatchRequest.age()).orElse(customer.getAge()));
 
-    return customerDao.updateCustomer(customer);
+    return toCustomerDTO(customerDao.updateCustomer(customer));
+  }
+
+  public boolean isAuthorized(String email, Long id) {
+    var c = customerDao.selectCustomerByEmail(email);
+    return c
+        .map(customer -> customer.getId().equals(id))
+        .orElse(false);
+  }
+
+  private CustomerDTO toCustomerDTO(Customer customer) {
+    return new CustomerDTO(
+        customer.getId(),
+        customer.getName(),
+        customer.getEmail(),
+        customer.getAge(),
+        customer.getUserDetailsApp()
+            .getAuthorities()
+            .stream()
+            .map(GrantedAuthority::getAuthority)
+            .toList()
+    );
   }
 }

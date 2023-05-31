@@ -7,8 +7,10 @@ import com.example.springbootrevision.jwt.JWTUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -28,7 +30,7 @@ public class CustomerController {
   }
 
   @GetMapping("api/v1/customers/{customerId}")
-  public Customer getCustomer(@PathVariable("customerId") Long customerId) {
+  public CustomerDTO getCustomer(@PathVariable("customerId") Long customerId) {
     return customerService.getCustomer(customerId);
   }
 
@@ -46,22 +48,25 @@ public class CustomerController {
     return jwtUtil.issueToken(customerRegistrationRequest.email(), "ROLE_USER");
   }
 
-  @DeleteMapping("api/v1/customers/{customerId}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteCustomer(@PathVariable("customerId") Long customerId) {
-    customerService.deleteCustomer(customerId);
-  }
+//  @DeleteMapping("api/v1/customers/{customerId}")
+//  @ResponseStatus(HttpStatus.NO_CONTENT)
+//  public void deleteCustomer(@PathVariable("customerId") Long customerId) {
+//    customerService.deleteCustomer(customerId);
+//  }
 
   @PutMapping("api/v1/customers/{customerId}")
-  public ResponseEntity<Customer> updateCustomer(@PathVariable("customerId") Long customerId, @Valid @RequestBody CustomerUpdateRequest customerUpdateRequest) {
-    final Customer updatedCustomer = customerService.updateCustomer(customerId, customerUpdateRequest);
+  @PostAuthorize("@customerService.isAuthorized(authentication.name, #customerId)")
+  public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable("customerId") Long customerId,
+                                                    @Valid @RequestBody CustomerUpdateRequest customerUpdateRequest) {
+    var updatedCustomer = customerService.updateCustomer(customerId, customerUpdateRequest);
     return ResponseEntity.ok(updatedCustomer);
   }
 
 
   @PatchMapping("api/v1/customers/{customerId}")
-  public ResponseEntity<Customer> updateCustomerPartially(@PathVariable("customerId") Long customerId, @Valid @RequestBody CustomerPatchRequest customerPatchRequest) {
-    final Customer updatedCustomer = customerService.updateCustomerPartially(customerId, customerPatchRequest);
+  @PreAuthorize("@customerService.isAuthorized(authentication.name, #customerId)")
+  public ResponseEntity<CustomerDTO> updateCustomerPartially(@PathVariable("customerId") Long customerId, @Valid @RequestBody CustomerPatchRequest customerPatchRequest) {
+    var updatedCustomer = customerService.updateCustomerPartially(customerId, customerPatchRequest);
     return ResponseEntity.ok(updatedCustomer);
   }
 
