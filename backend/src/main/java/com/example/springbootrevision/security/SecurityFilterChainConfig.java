@@ -1,6 +1,9 @@
 package com.example.springbootrevision.security;
 
 import com.example.springbootrevision.jwt.JWTAuthenticationFilter;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+import org.springframework.boot.actuate.health.HealthEndpoint;
+import org.springframework.boot.actuate.info.InfoEndpoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -35,6 +38,8 @@ public class SecurityFilterChainConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .authorizeHttpRequests(authorize -> authorize
+            .requestMatchers("/favicon.ico").permitAll()
+            .requestMatchers(EndpointRequest.to(HealthEndpoint.class, InfoEndpoint.class)).permitAll()
             .requestMatchers(HttpMethod.POST,  "/api/v1/customers", "/api/v1/auth").permitAll()
             .anyRequest().authenticated()
         )
