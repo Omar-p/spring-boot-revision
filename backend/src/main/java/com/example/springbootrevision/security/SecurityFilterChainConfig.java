@@ -38,7 +38,7 @@ public class SecurityFilterChainConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers("/favicon.ico").permitAll()
+            .requestMatchers("/favicon.ico", "/error").permitAll()
             .requestMatchers(EndpointRequest.to(HealthEndpoint.class, InfoEndpoint.class)).permitAll()
             .requestMatchers(HttpMethod.POST,  "/api/v1/customers", "/api/v1/auth").permitAll()
             .anyRequest().authenticated()
