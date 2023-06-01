@@ -1,5 +1,5 @@
-Health : http://customers.elasticbeanstalk.com/actuator/health
+Health : http://customers.us-east-1.elasticbeanstalk.com/actuator/health
 
-TODO: Rest Doc: http://customers.elasticbeanstalk.com/index.html
+TODO: Rest Doc: http://customers.us-east-1.elasticbeanstalk.com/index.html
 
-Info : http://customers.elasticbeanstalk.com/actuator/info
+Info : http://customers.us-east-1.elasticbeanstalk.com/actuator/info
