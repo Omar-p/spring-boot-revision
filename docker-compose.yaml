@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   backend:
-    image: omar077/customers-api:42e174484abe93d2c25bc4d59c6cb638d8a1260f
+    image: omar077/customers-api:49323f19e0ad99f6648170513a201a90827f87b6
     ports:
       - "80:8080"
     depends_on:
