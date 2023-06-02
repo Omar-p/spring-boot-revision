@@ -1,13 +1,12 @@
 package com.example.springbootrevision.security;
 
-import com.example.springbootrevision.customer.CustomerDao;
-import com.example.springbootrevision.customer.CustomerUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -16,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class SecurityConfig {
 
   @Bean
-  AuthenticationManager customersAuthenticationManager(CustomerUserDetailsService customerUserDetailsService) {
+  AuthenticationManager customersAuthenticationManager(UserDetailsService customerUserDetailsService) {
     DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
     provider.setPasswordEncoder(passwordEncoder());
     provider.setUserDetailsService(customerUserDetailsService);
@@ -25,7 +24,7 @@ public class SecurityConfig {
 
 
   @Bean
-  PasswordEncoder  passwordEncoder() {
+  PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
 }
