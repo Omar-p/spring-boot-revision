@@ -8,3 +8,10 @@ include::{snippets}/register-new-customer/http-request.adoc[]
 
 .response
 include::{snippets}/register-new-customer/http-response.adoc[]
+
+Customer Registration With Duplicated Email
+.request
+include::{snippets}/register-new-customer-with-duplicated-email/http-request.adoc[]
+
+.response
+include::{snippets}/register-new-customer-with-duplicated-email/http-response.adoc[]

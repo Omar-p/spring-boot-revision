@@ -2,6 +2,7 @@ package com.example.springbootrevision.customer;
 
 import com.example.springbootrevision.customer.requests.CustomerRegistrationRequest;
 import com.example.springbootrevision.exception.DelegatedAuthEntryPoint;
+import com.example.springbootrevision.exception.DuplicateResourceException;
 import com.example.springbootrevision.jwt.JWTUtil;
 import com.example.springbootrevision.security.CorsConfig;
 import com.example.springbootrevision.security.SecurityConfig;
@@ -45,10 +46,8 @@ class CustomerControllerTest {
   private static final String CUSTOMER_PATH = "/api/v1/customers";
 
   @Test
-  void itShouldRegisterNewCustomer() throws Exception {
+  void givenValidRegistrationRequestItShouldCreateNewCustomer() throws Exception {
 
-
-    // Given
     String token = "eyJhbGciOiJIUzI1NiJ9.eyJzY29wZXMiOiJST0xFX1VTRVIiLCJzdWIiOiJvbWFyQGVtYWlsLmNvbSIsImlzcyI6Imh0dHA6Ly9jdXN0b21lcnMudXMtZWFzdC0xLmVsYXN0aWNiZWFuc3RhbGsuY29tIiwiaWF0IjoxNjg1Njk2MTA2LCJleHAiOjE2ODY5OTIxMDZ9.My5e1LhYkMi2nnyXejNl95G_p6jig3BhMIERarCHi9M";
     CustomerRegistrationRequest request = new CustomerRegistrationRequest(
         "Omar",
@@ -61,7 +60,6 @@ class CustomerControllerTest {
     BDDMockito.given(jwtUtil.issueToken(request.email(), "ROLE_USER"))
         .willReturn(token);
 
-    // When
     mockMvc.perform(RestDocumentationRequestBuilders.post(CUSTOMER_PATH)
         .contentType(MediaType.APPLICATION_JSON)
         .content(
@@ -89,7 +87,40 @@ class CustomerControllerTest {
             )
         );
 
+  }
 
-    // Then
+  @Test
+  void givenRegistrationRequestWithDuplicatedEmailItShouldReturnConflict() throws Exception {
+    CustomerRegistrationRequest request = new CustomerRegistrationRequest(
+        "Omar",
+        "omar@email.com",
+        25,
+        "password"
+    );
+
+  BDDMockito.given(customerService.addNewCustomer(request))
+      .willThrow(new DuplicateResourceException("Email is already taken"));
+
+  mockMvc.perform(RestDocumentationRequestBuilders.post(CUSTOMER_PATH)
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(
+          """
+          {
+            "name": "Omar",
+            "email": "omar@email.com",
+            "age": 25,
+            "password": "password"
+          }
+          """
+      ))
+      .andExpect(MockMvcResultMatchers.status().isConflict())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message", Matchers.is("Email is already taken")))
+      .andDo(
+          document("register-new-customer-with-duplicated-email",
+              requestHeaders(
+                  headerWithName(HttpHeaders.CONTENT_TYPE).description("type of the body, e.g. JSON")
+              )
+          )
+      );
   }
 }
