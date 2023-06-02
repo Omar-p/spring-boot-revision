@@ -10,7 +10,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -39,7 +38,7 @@ public class CustomerController {
   public ResponseEntity<?> registerNewCustomer(@Valid @RequestBody CustomerRegistrationRequest customerRegistrationRequest) {
     final Long id = customerService.addNewCustomer(customerRegistrationRequest);
     return ResponseEntity
-        .created(URI.create("/api/customers/" +id))
+        .created(URI.create("/api/v1/customers/" +id))
         .header(HttpHeaders.AUTHORIZATION, "Bearer " + issueTokeWithRoleUser(customerRegistrationRequest))
         .build();
   }
