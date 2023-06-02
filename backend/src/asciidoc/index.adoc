@@ -1,0 +1,10 @@
+= Customers
+
+Customer Registration With Valid Data
+
+
+.request
+include::{snippets}/register-new-customer/http-request.adoc[]
+
+.response
+include::{snippets}/register-new-customer/http-response.adoc[]
